@@ -14,23 +14,7 @@ title_pat = r"<a title=开奖日期：.*>(\d{5})\s*\w*</a>"
 rq_pat = "<td class='green5qiu|redqiu.*'>(\d{1,2})</td>"
 bq_pat = "<td class='blueqiu3\s*.*'>(\d{1,2})</td>"
 
-CUR_TERM = "116"
-CUR_YEAR = "2014"
-
-#key is the year, value is the number of term of SSQ
-JOU_MAP = {"2003" : "089",
-           "2004" : "123",
-           "2005" : "154",
-           "2006" : "154",
-           "2007" : "154",
-           "2008" : "154",
-           "2009" : "154",
-           "2010" : "153",
-           "2011" : "153",
-           "2012" : "154",
-           "2013" : "154",
-           "2014" : CUR_TERM,
-           }
+CUR_YEAR = 2014
 
 def http_request_get(url):
     if not url or len(url) == 0:
@@ -80,7 +64,7 @@ def get_data_by_year(year=""):
         return
 
     url = URL % year
-    print url
+    print "Getting data of year: %s" % year
     html = http_request_get(url)
     time.sleep(2)
     parse_request(html)
@@ -90,7 +74,7 @@ if __name__ == '__main__':
     if not out_fp:
         print "can not open file: %s, quit" % DATA_FILE
         sys.exit(-1)
-    for year in range(2003, int(CUR_YEAR) + 1):
+    for year in range(2003, CUR_YEAR + 1):
         get_data_by_year(str(year))
 
     close_file(out_fp)

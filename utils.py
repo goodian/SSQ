@@ -40,8 +40,7 @@ def open_for_write(name = ""):
         return None
 
     if not os.path.exists(name):
-        print "can not find file: %s, please check." % name
-        return None
+        print "can not find file: %s, create a new one." % name
 
     try:
         fp = open(name, 'w')
