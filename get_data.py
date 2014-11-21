@@ -21,7 +21,7 @@ def http_request_get(url):
         print "http_request_get err: url is None"
     h = urllib2.Request(url)
     ht = urllib2.urlopen(h)
-    html = ht.read(ht)
+    html = ht.read()
     return html
 #end http_request_get
 
