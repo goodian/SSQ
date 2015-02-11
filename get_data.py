@@ -14,7 +14,8 @@ title_pat = r"<a title=开奖日期：.*>(\d{5})\s*\w*</a>"
 rq_pat = "<td class='green5qiu|redqiu.*'>(\d{1,2})</td>"
 bq_pat = "<td class='blueqiu3\s*.*'>(\d{1,2})</td>"
 
-CUR_YEAR = 2014
+BEGIN_YEAR = 2003
+CUR_YEAR = 2015
 
 def http_request_get(url):
     if not url or len(url) == 0:
@@ -74,7 +75,7 @@ if __name__ == '__main__':
     if not out_fp:
         print "can not open file: %s, quit" % DATA_FILE
         sys.exit(-1)
-    for year in range(2003, CUR_YEAR + 1):
+    for year in range(BEGIN_YEAR, CUR_YEAR + 1):
         get_data_by_year(str(year))
 
     close_file(out_fp)

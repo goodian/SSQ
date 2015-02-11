@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import random
 from utils import *
+
+PRINT_TAOBAO_FMT = "%02d %02d %02d %02d %02d %02d:%02d"
+RESULT_CNT = 128
 
 #个数
 red_cnt_num = [0] * (NUM_RED + 1)
@@ -115,34 +119,13 @@ def get_all_pos_red_res():
 
     print reds
 
-    r_len = len(reds)
+    cnt = 10 * RESULT_CNT
+    while cnt > 0:
+        tmp = random.sample(reds, 6)
+        if tmp not in res:
+            res.append(tmp)
+            cnt = cnt - 1
 
-    for i0 in range(r_len):
-        for i1 in range(i0, r_len):
-            for i2 in range(i1, r_len):
-                for i3 in range(i2, r_len):
-                    for i4 in range(i3, r_len):
-                        for i5 in range(i4, r_len):
-                            t = []
-                            t.append(reds[i0])
-                            if reds[i1] not in t:
-                                t.append(reds[i1])
-                            if reds[i2] not in t:
-                                t.append(reds[i2])
-                            if reds[i3] not in t:
-                                t.append(reds[i3])
-                            if reds[i4] not in t:
-                                t.append(reds[i4])
-                            if reds[i5] not in t:
-                                t.append(reds[i5])
-                            #print tuple(t)
-                            res.append(t)
-        #end for i1
-        #res.append(t)
-
-    #end for i0
-
-    #print res
     return res
 
 #end get_all_pos_red_res
@@ -277,18 +260,31 @@ def do_filters(reds = [], blue = 0):
     return True
 #end do_filters
 
+def print_taobao_format(reds = [], blue = 0):
+    print PRINT_TAOBAO_FMT % (reds[0], reds[1], reds[2], reds[3], reds[4], reds[5], blue)
+#end print_taobao_format
+
 def get_all_pos_res():
     '''
     get top 15 in red and top 5 in blue
     '''
-
     reds = get_all_pos_red_res()
     blues = get_all_pos_blue_res()
+    #blues = [7]
 
+    remains = RESULT_CNT
+    while remains > 0:
+        (r, b) = (random.sample(reds, 1)[0], random.sample(blues, 1)[0])
+        if do_filters(r, b):
+            print_taobao_format(r, b)
+            remains -= 1
+    '''
     for r in reds:
         for b in blues:
             if do_filters(r, b):
-                print (r, b)
+                print_taobao_format(r, b)
+                #print (r, b)
+    '''
 #end get_all_pos_res
 
 
