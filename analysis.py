@@ -5,7 +5,9 @@ from utils import *
 PRINT_TAOBAO_FMT = "%02d %02d %02d %02d %02d %02d:%02d"
 RESULT_CNT = 10
 AC_R = 6
-LAST_NUM = [6, 9, 12, 14, 28, 29, 9]
+LAST_NUM = []
+ZHISHU = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
+last_sd = 0
 
 #个数
 red_cnt_num = [0] * (NUM_RED + 1)
@@ -22,6 +24,18 @@ result_blue = {}
 
 parsed_line = 0
 
+def get_last_data(line):
+    global LAST_NUM
+    if not line or len(line) == 0:
+        print "get last line data error.\n"
+        os.exit()
+    data_list = line.split()
+
+    for i in range(1, 8):
+        LAST_NUM.append(int(data_list[i]))
+    print LAST_NUM
+#end get_last_data
+
 def do_analysis():
     fp = open_for_read(DATA_FILE)
     if not fp:
@@ -29,7 +43,7 @@ def do_analysis():
         return
     for line in fp:
         count_data_line(line)
-
+    get_last_data(line)
     compute_gailv()
 #end do_analysis
 
@@ -119,8 +133,6 @@ def get_all_pos_red_res():
         reds.append(k)
     #end for
 
-    print reds
-
     cnt = 10 * RESULT_CNT
     while cnt > 0:
         tmp = random.sample(reds, 6)
@@ -147,10 +159,7 @@ def get_all_pos_blue_res():
         blues.append(k)
     #end for
 
-    print blues
-
     return blues
-
 #end get_all_pos_blue_res
 
 def do_ji_ou_filter(reds = [], blue = 0):
@@ -168,13 +177,7 @@ def do_ji_ou_filter(reds = [], blue = 0):
 #end do_ji_ou_filter
 
 def do_and_filter(reds = [], blue = 0):
-    sum = 0
-
-    for i in reds:
-        sum += i
-
-    return 78 <= sum <= 126
-
+    return 78 <= sum(reds) <= 126
 #end do_and_filter
 
 def do_qujian_filter(reds = [], blue = 0):
@@ -183,11 +186,11 @@ def do_qujian_filter(reds = [], blue = 0):
     q3 = 0
 
     for i in reds:
-        if i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
+        if i in range(1, 12):
             q1 += 1
-        if i in [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]:
+        elif i in range(12, 23):
             q2 += 1
-        if i in [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]:
+        elif i in [23, 34]:
             q3 += 1
     #end for
 
@@ -202,20 +205,12 @@ def do_lianhao_filter(reds = [], blue = 0):
     '''
     cnt = 0
     for i in reds:
-        if (i + 1) in reds:
-            cnt += 1
+        if (i + 1) in reds: cnt += 1
 
-    if cnt >= 2:
-        return False
-
-    for i in reds:
-        if ((i + 1) in reds and (i + 2) in reds):
-            return False
+    if cnt > 2: return False
 
     return True
 #end do_lianhao_filter
-
-ZHISHU = [1, 2,3,5,7,11,13,17,19,23,29,31]
 
 def do_zhishu_filter(reds, blue):
     cnt = 0
@@ -230,7 +225,7 @@ def do_big_small_filter(reds, blue):
     s_cnt = 0
 
     for i in reds:
-        if i in [1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]:
+        if i in range(1, 17):
             b_cnt += 1
         else:
             s_cnt += 1
@@ -243,21 +238,15 @@ def do_big_small_filter(reds, blue):
 def do_AC_filter(reds, blue):
     tmp = []
 
-    reds.sort()
-    for i in range(len(reds)):
-        j = i + 1
-        while j < len(reds):
-            if reds[j] - reds[i] not in tmp:
-                tmp.append(reds[j] - reds[i])
-            j += 1
-        #end while
-        i += 1
+    for i in reds:
+        for j in reds:
+            d = i - j
+            if d != 0 and abs(d) not in tmp: tmp.append(abs(d))
+        #end for
     #end for
 
-    ac =len(tmp) - AC_R + 1
-    if ac >=6 and ac <=9:
-        return True
-    return False
+    return 6 <= len(tmp) - AC_R + 1 <= 9
+
 #end do_AC_filter
 
 def get_sandu(reds):
@@ -266,15 +255,12 @@ def get_sandu(reds):
     for i in reds:
         t = 99
         for j in reds:
-            if i == j:
-                continue
             d = i - j
-            if t > abs(d):
+            if d != 0 and t > abs(d):
                 t = abs(d)
-        if t != 99: tmp.append(abs(t))
+        if t != 99: tmp.append(t)
 
-    tmp.sort()
-    return tmp[len(tmp) - 1]
+    return max(tmp)
 #end get_sandu
 
 def do_sandu_filter(reds, blue):
@@ -287,26 +273,24 @@ def do_chonghao_filter(reds, blue):
     for i in reds:
         if i in LAST_NUM:
             cnt += 1
-    return cnt == 1 or cnt == 2
+    return cnt in [1, 2]
 #end do_chonghao_filter
 
 def do_piandu_filter(reds, blue):
+    global last_sd
     tmp = []
 
     for i in LAST_NUM:
         t = 99
         for j in reds:
-            if i == j:
-                continue
             d = i - j
-            if t > abs(d):
+            if d != 0 and t > abs(d):
                 t = abs(d)
-        if t != 99: tmp.append(abs(t))
+        if t != 99: tmp.append(t)
 
-    tmp.sort()
-    piandu = tmp[len(tmp) - 1]
-    last_sd = get_sandu(LAST_NUM)
-    return (piandu in range(4, 8)) and piandu >= last_sd
+    piandu = max(tmp)
+    if last_sd == 0: last_sd = get_sandu(LAST_NUM)
+    return piandu in range(4, 8) and piandu >= last_sd
 #end do_piandu_filter
 
 def do_filters(reds = [], blue = 0):
@@ -351,17 +335,32 @@ def get_all_pos_res():
     '''
     get top 15 in red and top 5 in blue
     '''
+    false_cnt = 0
     reds = get_all_pos_red_res()
     blues = get_all_pos_blue_res()
+    results = []
 
     remains = RESULT_CNT
     while remains > 0:
         (r, b) = (random.sample(reds, 1)[0], random.sample(blues, 1)[0])
         if do_filters(r, b):
+            if (r, b) in results:
+                false_cnt += 1
+                continue
+            results.append((r, b))
             print_taobao_format(r, b)
+            r.sort()
             remains -= 1
+        else:
+            false_cnt += 1
+            if false_cnt >= RESULT_CNT * 100:
+                reds = get_all_pos_red_res()
+                blues = get_all_pos_blue_res()
+                #print "Can not get enough results, retry..."
+            #end if
+        #end if
+    #end while
 #end get_all_pos_res
-
 
 if __name__ == '__main__':
     do_analysis()
