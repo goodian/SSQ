@@ -3,7 +3,9 @@ import random
 from utils import *
 
 PRINT_TAOBAO_FMT = "%02d %02d %02d %02d %02d %02d:%02d"
-RESULT_CNT = 128
+RESULT_CNT = 10
+AC_R = 6
+LAST_NUM = [6, 9, 12, 14, 28, 29, 9]
 
 #个数
 red_cnt_num = [0] * (NUM_RED + 1)
@@ -238,6 +240,75 @@ def do_big_small_filter(reds, blue):
     return False
 #end do_big_small_filter
 
+def do_AC_filter(reds, blue):
+    tmp = []
+
+    reds.sort()
+    for i in range(len(reds)):
+        j = i + 1
+        while j < len(reds):
+            if reds[j] - reds[i] not in tmp:
+                tmp.append(reds[j] - reds[i])
+            j += 1
+        #end while
+        i += 1
+    #end for
+
+    ac =len(tmp) - AC_R + 1
+    if ac >=6 and ac <=9:
+        return True
+    return False
+#end do_AC_filter
+
+def get_sandu(reds):
+    tmp = []
+
+    for i in reds:
+        t = 99
+        for j in reds:
+            if i == j:
+                continue
+            d = i - j
+            if t > abs(d):
+                t = abs(d)
+        if t != 99: tmp.append(abs(t))
+
+    tmp.sort()
+    return tmp[len(tmp) - 1]
+#end get_sandu
+
+def do_sandu_filter(reds, blue):
+    return get_sandu(reds) in range(5, 10)
+#end do_sandu_filter
+
+def do_chonghao_filter(reds, blue):
+    cnt = 0
+
+    for i in reds:
+        if i in LAST_NUM:
+            cnt += 1
+    return cnt == 1 or cnt == 2
+#end do_chonghao_filter
+
+def do_piandu_filter(reds, blue):
+    tmp = []
+
+    for i in LAST_NUM:
+        t = 99
+        for j in reds:
+            if i == j:
+                continue
+            d = i - j
+            if t > abs(d):
+                t = abs(d)
+        if t != 99: tmp.append(abs(t))
+
+    tmp.sort()
+    piandu = tmp[len(tmp) - 1]
+    last_sd = get_sandu(LAST_NUM)
+    return (piandu in range(4, 8)) and piandu >= last_sd
+#end do_piandu_filter
+
 def do_filters(reds = [], blue = 0):
     if not do_ji_ou_filter(reds, blue):
         return False
@@ -257,6 +328,18 @@ def do_filters(reds = [], blue = 0):
     if not do_zhishu_filter(reds, blue):
         return False
 
+    if not do_AC_filter(reds, blue):
+        return False
+
+    if not do_sandu_filter(reds, blue):
+        return False
+
+    if not do_chonghao_filter(reds, blue):
+        return False
+
+    if not do_piandu_filter(reds, blue):
+        return False
+
     return True
 #end do_filters
 
@@ -270,7 +353,6 @@ def get_all_pos_res():
     '''
     reds = get_all_pos_red_res()
     blues = get_all_pos_blue_res()
-    #blues = [7]
 
     remains = RESULT_CNT
     while remains > 0:
@@ -278,13 +360,6 @@ def get_all_pos_res():
         if do_filters(r, b):
             print_taobao_format(r, b)
             remains -= 1
-    '''
-    for r in reds:
-        for b in blues:
-            if do_filters(r, b):
-                print_taobao_format(r, b)
-                #print (r, b)
-    '''
 #end get_all_pos_res
 
 
