@@ -344,6 +344,7 @@ def get_all_pos_res():
     while remains > 0:
         (r, b) = (random.sample(reds, 1)[0], random.sample(blues, 1)[0])
         if do_filters(r, b):
+            r.sort()
             if (r, b) in results:
                 false_cnt += 1
                 continue
