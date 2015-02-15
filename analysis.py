@@ -331,6 +331,20 @@ def print_taobao_format(reds = [], blue = 0):
     print PRINT_TAOBAO_FMT % (reds[0], reds[1], reds[2], reds[3], reds[4], reds[5], blue)
 #end print_taobao_format
 
+def has_similar_in_results(reds, results):
+    for r in results:
+        cnt = 0
+        for i in reds:
+            if i in r[0]:
+                cnt += 1
+            #end if
+        #end for
+        if cnt >= 4:
+            return True
+    #end for
+    return False
+#end has_similar_in_results
+
 def get_all_pos_res():
     '''
     get top 15 in red and top 5 in blue
@@ -348,9 +362,11 @@ def get_all_pos_res():
             if (r, b) in results:
                 false_cnt += 1
                 continue
+            if has_similar_in_results(r, results):
+                false_cnt += 1
+                continue
             results.append((r, b))
             print_taobao_format(r, b)
-            r.sort()
             remains -= 1
         else:
             false_cnt += 1
