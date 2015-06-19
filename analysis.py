@@ -322,7 +322,8 @@ def do_filters(reds = [], blue = 0):
         return False
 
     if not do_piandu_filter(reds, blue):
-        return False
+        return True
+        #return False
 
     return True
 #end do_filters
@@ -373,6 +374,7 @@ def get_all_pos_res():
             if false_cnt >= RESULT_CNT * 100:
                 reds = get_all_pos_red_res()
                 blues = get_all_pos_blue_res()
+                false_cnt = 0
                 #print "Can not get enough results, retry..."
             #end if
         #end if
