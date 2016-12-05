@@ -1,0 +1,2 @@
+# SSQ
+just for fun
